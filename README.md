@@ -16,4 +16,5 @@ External Code
  * [StartX](http://www.naughter.com/startx.html)
  * [CPU-Z](http://www.cpu-z.de/)
  * [MD5](http://www.fourmilab.ch/md5/)
+ * [Bat to Exe Converter][http://www.f2ko.de/programs.php?lang=de&pid=b2e)
  
