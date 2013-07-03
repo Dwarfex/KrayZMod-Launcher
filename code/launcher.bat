@@ -3,7 +3,7 @@ color 0F
 mode 70,24
 set title=KrayZ Launcher
 title %title%
-set krayzlauncher=1.514
+set krayzlauncher=1.515
 set a= 
 set b=%%
 echo %a%%a%%a%%a%%a%%a%%a%%a%%a%%a%%a%%a%%a%%a%%a%%a%%a%%a%%a%%a%%a%%a%Launcher Version: %krayzlauncher%
@@ -123,6 +123,10 @@ move /Y krayzlaunchercur.txt %workingpath% > NUL
 for /f "delims=" %%x in (%workingpath%\krayzlaunchercur.txt) do (set krayzlaunchercur=%%x)
 if defined krayzlaunchercur set krayzlaunchercur=%krayzlaunchercur: =%
 if exist %workingpath%\krayzlaunchercur.txt del %workingpath%\krayzlaunchercur.txt > NUL
+move /Y downloadserver.txt %workingpath% > NUL
+for /f "delims=" %%x in (%workingpath%\downloadserver.txt) do (set downloadserver=%%x)
+if defined downloadserver set downloadserver=%downloadserver: =%
+if exist %workingpath%\downloadserver.txt del %workingpath%\downloadserver.txt > NUL
 rename arma2oabeta.tmp arma2oabeta_orig.txt
 move /Y arma2oabeta_orig.txt %workingpath% > NUL
 rename arma2oadown.tmp arma2oadown.txt
@@ -134,9 +138,10 @@ move /Y krayzmd5all.txt %workingpath% > NUL
 if not defined krayzver goto checkfiles1
 if not defined krayzverdev goto checkfiles2
 if not defined krayzlaunchercur goto checkfiles3
-if not defined oabetadownload goto checkfiles4
-if not exist %workingpath%\arma2oadown.txt goto checkfiles5
-if not exist %workingpath%\krayzmd5all.txt goto checkfiles6
+if not defined downloadserver goto checkfiles4
+if not defined oabetadownload goto checkfiles5
+if not exist %workingpath%\arma2oadown.txt goto checkfiles6
+if not exist %workingpath%\krayzmd5all.txt goto checkfiles7
 goto checkfilescomplete
 :checkfiles1
 if not exist %workingpath%\latest.tmp %wget% -q http://krazey.de/files/krayz/latest.tmp
@@ -160,18 +165,25 @@ if defined krayzlaunchercur set krayzlaunchercur=%krayzlaunchercur: =%
 if exist %workingpath%\krayzlaunchercur.txt del %workingpath%\krayzlaunchercur.txt > NUL
 goto checkfiles
 :checkfiles4
+if not exist %workingpath%\downloadserver.txt %wget% -q http://krazey.de/files/krayz/downloadserver.txt
+if not exist %workingpath%\downloadserver.txt move /Y downloadserver.txt %workingpath% > NUL
+if exist %workingpath%\downloadserver.txt for /f "delims=" %%x in (%workingpath%\downloadserver.txt) do (set downloadserver=%%x)
+if defined downloadserver set downloadserver=%downloadserver: =%
+if exist %workingpath%\downloadserver.txt del %workingpath%\downloadserver.txt > NUL
+goto checkfiles
+:checkfiles5
 if not exist %workingpath%\arma2oadown.tmp %wget% -q http://krazey.de/files/krayz/arma2oadown.tmp
 if not exist %workingpath%\arma2oadown.tmp rename arma2oadown.tmp arma2oadown.txt
 if not exist %workingpath%\arma2oadown.tmp move /Y arma2oadown.txt %workingpath% > NUL
 if exist %workingpath%\arma2oadown.tmp for /f "delims=" %%x in (%workingpath%\arma2oadown.txt) do (set "%%x")
 if exist %workingpath%\arma2oadown.txt del %workingpath%\arma2oadown.txt > NUL
 goto checkfiles
-:checkfiles5
+:checkfiles6
 if not exist %workingpath%\arma2oabeta.tmp %wget% -q http://krazey.de/files/krayz/arma2oabeta.tmp
 if not exist %workingpath%\arma2oabeta.tmp rename arma2oabeta.tmp arma2oabeta_orig.txt
 if not exist %workingpath%\arma2oabeta.tmp move /Y arma2oabeta_orig.txt %workingpath% > NUL
 goto checkfiles
-:checkfiles6
+:checkfiles7
 if not exist %workingpath%\krayzmd5all.tmp %wget% -q http://krazey.de/files/krayz/krayzmd5all.tmp
 if not exist %workingpath%\krayzmd5all.txt rename krayzmd5all.tmp krayzmd5all.txt
 if not exist %workingpath%\krayzmd5all.txt move /Y krayzmd5all.txt %workingpath% > NUL
@@ -468,7 +480,7 @@ echo Downloading latest KrayZ now.. (v%krayzver%)
 echo This could take a few minutes ;)
 echo %datetime% Downloading latest KrayZ now.. (v%krayzver%) >> "event.log"
 if exist KrayZ_%krayzver%_full.rar del KrayZ_%krayzver%_full.rar > NUL
-%wget% -o %workingpath%\krayz.log http://krazey.ximensions-server.de/KrayZ_%krayzver%_full.rar
+%wget% -o %workingpath%\krayz.log http://%downloadserver%/KrayZ_%krayzver%_full.rar
 %unrar% x -y KrayZ_%krayzver%_full.rar
 title %title%
 del KrayZ_%krayzver%_full.rar > NUL
@@ -489,7 +501,7 @@ echo Downloading latest KRAYZ_CBA+JSRS now.. (v%krayzcba%)
 echo This could take a few minutes ;)
 echo %datetime% Downloading latest KRAYZ_CBA+JSRS now.. (v%krayzcba%) >> "event.log"
 if exist KrayZ_%krayzcba%_CBA_JSRS_full.rar del KrayZ_%krayzcba%_CBA_JSRS_full.rar > NUL
-%wget% -o %workingpath%\krayz.log http://krazey.ximensions-server.de/KrayZ_%krayzcba%_CBA_JSRS_full.rar
+%wget% -o %workingpath%\krayz.log http://%downloadserver%/KrayZ_%krayzcba%_CBA_JSRS_full.rar
 %unrar% x -y KrayZ_%krayzcba%_CBA_JSRS_full.rar
 title %title%
 del KrayZ_%krayzcba%_CBA_JSRS_full.rar > NUL
@@ -577,7 +589,7 @@ if not exist %workingpath%\md5error.log timeout /t 5 /NOBREAK > NUL
 if not exist %workingpath%\md5error.log goto serverselection
 :ifupdatetrue
 if exist KrayZ_%krayzver%_patch.rar del KrayZ_%krayzver%_patch.rar > NUL
-%wget% -o %workingpath%\krayz.log http://krazey.ximensions-server.de/KrayZ_%krayzver%_patch.rar
+%wget% -o %workingpath%\krayz.log http://%downloadserver%/KrayZ_%krayzver%_patch.rar
 %unrar% x -y KrayZ_%krayzver%_patch.rar
 title %title%
 del KrayZ_%krayzver%_patch.rar > NUL
